@@ -1,0 +1,5 @@
+{
+  "name": "AI Web Researcher Agent",
+  "description": "An intelligent AI agent that takes a user's topic, performs a simulated web search, and uses the Gemini API to summarize the findings into a concise report. Built for the Nosana & Mastra AI Agent Challenge.",
+  "requestFramePermissions": []
+}
