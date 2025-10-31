@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -39,11 +38,19 @@ const ResearcherAgent: React.FC = () => {
     setResult('');
     setError(null);
 
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      setError('API key is not configured. Please ensure the API_KEY is set.');
+      setStatus('Task failed: Missing API Key.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const searchResult = await searchWebTool(query);
 
       setStatus('Analyzing search results with Gemini...');
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+      const ai = new GoogleGenAI({ apiKey });
 
       const prompt = `Based on the following information, generate a concise summary report for the user's query: "${query}". Format the output in Markdown with a title, a brief paragraph, and 3-4 bullet points highlighting the key takeaways.\n\nInformation Found:\n${searchResult}`;
       

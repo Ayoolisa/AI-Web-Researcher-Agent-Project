@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { MagicWandIcon } from './Icons';
@@ -19,8 +18,15 @@ const CodeAssistant: React.FC = () => {
     setError(null);
     setGeneratedCode('');
 
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+      setError('API key is not configured. Please ensure the API_KEY is set.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-pro',
         contents: prompt,
