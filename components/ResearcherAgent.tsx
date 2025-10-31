@@ -1,5 +1,33 @@
 import React, { useState } from 'react';
-import { GoogleGenAI } from "@google/genai";
+
+// Mock Nosana SDK for demonstration purposes
+class Nosana {
+  async run({ agent, payload }: { agent: string; payload: any }) {
+    console.log(`[Nosana Mock] Running job on agent "${agent}" with payload:`, payload);
+    const jobId = `job-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Simulate network delay for job submission
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    return {
+      id: jobId,
+      result: this._getMockResult(jobId, payload)
+    };
+  }
+
+  // Simulate polling for a result
+  _getMockResult(jobId: string, payload: any) {
+    return new Promise(resolve => {
+        // Simulate decentralized compute time
+        setTimeout(() => {
+            console.log(`[Nosana Mock] Job ${jobId} finished.`);
+            const responseText = `### Research Summary: ${payload.query}\n\nBased on the simulated web search, **${payload.query}** is a key concept in modern technology. It represents a shift towards new paradigms and has significant implications for future development.\n\n*   **Key takeaway 1:** Major advancements have been made in recent years.\n*   **Key takeaway 2:** Adoption is growing across multiple industries.\n*   **Key takeaway 3:** Further research and development are ongoing.`;
+            resolve(responseText);
+        }, 4000);
+    });
+  }
+}
+
 
 const ResearcherAgent: React.FC = () => {
   const [query, setQuery] = useState<string>('');
@@ -7,26 +35,7 @@ const ResearcherAgent: React.FC = () => {
   const [status, setStatus] = useState<string>('Awaiting your research topic...');
   const [result, setResult] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-
-  // This is our "Tool" - a mock function to simulate fetching web data.
-  const searchWebTool = async (topic: string): Promise<string> => {
-    setStatus(`Tool Call: Searching the web for "${topic}"...`);
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network latency
-
-    const mockData = {
-        "decentralized compute": "Decentralized compute refers to a network of distributed computers that share resources to perform tasks without a central authority. Projects like Nosana leverage this model to provide censorship-resistant and cost-effective computing power for AI and other intensive workloads. It contrasts with traditional cloud providers like AWS or Google Cloud by distributing trust and control among participants.",
-        "ai agents": "AI agents are autonomous programs that can perceive their environment, make decisions, and take actions to achieve specific goals. They often use Large Language Models (LLMs) for reasoning and can be equipped with 'tools' (functions) to interact with external systems, like APIs or databases. Frameworks like Mastra help orchestrate these agents and their tool-calling capabilities.",
-    };
-    
-    const lowerCaseTopic = topic.toLowerCase();
-    if (lowerCaseTopic.includes("decentralized compute")) {
-      return mockData["decentralized compute"];
-    } else if (lowerCaseTopic.includes("ai agents")) {
-      return mockData["ai agents"];
-    } else {
-      return `Found several articles about "${topic}". The core idea revolves around its impact on modern technology. It is a rapidly evolving field with significant investment and research focus. Key applications are emerging in various industries, from finance to healthcare.`;
-    }
-  };
+  const [jobId, setJobId] = useState<string | null>(null);
 
   const handleResearch = async () => {
     if (!query.trim()) {
@@ -37,34 +46,28 @@ const ResearcherAgent: React.FC = () => {
     setIsLoading(true);
     setResult('');
     setError(null);
-
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-      setError('API key is not configured. Please ensure the API_KEY is set.');
-      setStatus('Task failed: Missing API Key.');
-      setIsLoading(false);
-      return;
-    }
+    setJobId(null);
 
     try {
-      const searchResult = await searchWebTool(query);
-
-      setStatus('Analyzing search results with Gemini...');
-      const ai = new GoogleGenAI({ apiKey });
-
-      const prompt = `Based on the following information, generate a concise summary report for the user's query: "${query}". Format the output in Markdown with a title, a brief paragraph, and 3-4 bullet points highlighting the key takeaways.\n\nInformation Found:\n${searchResult}`;
+      setStatus('Submitting job to the Nosana network...');
+      const nosana = new Nosana();
       
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
+      const job = await nosana.run({
+          agent: 'research-agent-v1',
+          payload: { query }
       });
+      
+      setJobId(job.id);
+      setStatus(`Job [${job.id}] submitted. Waiting for result from the decentralized grid...`);
 
-      setResult(response.text);
-      setStatus('Research complete. Report generated below.');
+      const jobResult = await job.result as string;
+      
+      setResult(jobResult);
+      setStatus(`Job [${job.id}] complete. Report generated below.`);
 
     } catch (err) {
       console.error(err);
-      setError('An error occurred during the research process. Please check the console.');
+      setError('An error occurred while communicating with the Nosana network.');
       setStatus('Task failed.');
     } finally {
       setIsLoading(false);
@@ -76,7 +79,7 @@ const ResearcherAgent: React.FC = () => {
       <header className="w-full text-center mb-8">
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">AI Web Researcher Agent</h1>
         <p className="text-lg text-gray-400">
-          An intelligent AI agent that performs web searches and summarizes findings.
+          Submit your research topic to the Nosana decentralized compute network.
         </p>
       </header>
 
@@ -101,10 +104,10 @@ const ResearcherAgent: React.FC = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Researching...
+                Processing on Nosana...
               </>
             ) : (
-              'Start Research'
+              'Run Job on Nosana'
             )}
           </button>
         </div>
@@ -113,7 +116,7 @@ const ResearcherAgent: React.FC = () => {
 
         <div className="mt-6 border-t border-slate-700 pt-6">
           <h2 className="text-lg font-semibold text-gray-300 mb-2">Agent Status</h2>
-          <p className="text-cyan-400 bg-slate-800 p-3 rounded-md font-mono text-sm">{status}</p>
+          <p className="text-cyan-400 bg-slate-800 p-3 rounded-md font-mono text-sm break-words">{status}</p>
         </div>
 
         {result && (
@@ -122,8 +125,8 @@ const ResearcherAgent: React.FC = () => {
             <div className="prose prose-invert prose-p:text-gray-300 prose-headings:text-white prose-ul:text-gray-300 bg-slate-800 p-4 rounded-md">
               {/* Basic Markdown rendering for simplicity */}
               {result.split('\n').map((line, i) => {
-                if (line.startsWith('#')) {
-                  return <h3 key={i} className="text-xl font-bold mt-2 mb-2">{line.replace(/#/g, '').trim()}</h3>;
+                if (line.startsWith('###')) {
+                  return <h3 key={i} className="text-xl font-bold mt-2 mb-2">{line.replace(/###/g, '').trim()}</h3>;
                 }
                 if (line.startsWith('*')) {
                   return <li key={i} className="ml-4 list-disc">{line.replace('*', '').trim()}</li>;
@@ -134,8 +137,8 @@ const ResearcherAgent: React.FC = () => {
           </div>
         )}
       </div>
-      <footer className="w-full text-center my-8 text-gray-500">
-          <p className="mt-4 text-sm">This is a simulated agent. Tool calling is mocked for demonstration purposes.</p>
+       <footer className="w-full text-center my-8 text-gray-500">
+          <p className="mt-4 text-sm">Jobs are processed on a simulated Nosana network for this demo.</p>
       </footer>
     </div>
   );

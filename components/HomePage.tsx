@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ChallengePhaseCard from './ChallengePhaseCard';
 import AgentIdeaCard from './AgentIdeaCard';
@@ -15,7 +14,7 @@ const HomePage: React.FC = () => {
                     Welcome to the <span className="text-cyan-400">AI Agent</span> Challenge
                 </h2>
                 <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-400">
-                    Build, test, and deploy your own AI agent using cutting-edge decentralized compute and agent frameworks. Let's build the future, together.
+                    Build, test, and deploy your own AI agent using the Nosana Network for decentralized compute. Let's build the future, together.
                 </p>
                 <div className="mt-8 flex flex-wrap justify-center gap-4">
                     <a href="#/researcher" className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition-colors">
@@ -34,21 +33,21 @@ const HomePage: React.FC = () => {
                     <ChallengePhaseCard 
                         icon={<CodeIcon />}
                         title="Phase 1: Build"
-                        description="Develop your AI agent. Define its purpose, choose its tools, and write the core logic."
+                        description="Develop your AI agent. Define its purpose, choose its tools, and write the core logic for its task."
                         details={[
                             "Familiarize with Gemini API",
-                            "Implement tool-calling functions",
-                            "Set up your development environment",
-                            "Test agent's core functionality"
+                            "Implement agent's core function",
+                            "Set up local development environment",
+                            "Test agent's logic with sample inputs"
                         ]}
                     />
                     <ChallengePhaseCard 
                         icon={<DockerIcon />}
                         title="Phase 2: Containerize"
-                        description="Package your agent into a portable and reproducible Docker container."
+                        description="Package your agent into a portable and reproducible Docker container for the Nosana Network."
                         details={[
                             "Write a Dockerfile for your agent",
-                            "Build and test the Docker image",
+                            "Build and test the Docker image locally",
                             "Optimize image for size and speed",
                             "Push image to a container registry"
                         ]}
@@ -58,9 +57,9 @@ const HomePage: React.FC = () => {
                         title="Phase 3: Deploy"
                         description="Deploy your agent on the Nosana network for decentralized, censorship-resistant execution."
                         details={[
-                            "Configure Nosana deployment manifest",
-                            "Submit your job to the network",
-                            "Monitor execution and logs",
+                            "Use the Nosana SDK to submit jobs",
+                            "Create a simple UI to interact with it",
+                            "Monitor execution on the network",
                             "Showcase your live agent!"
                         ]}
                     />
